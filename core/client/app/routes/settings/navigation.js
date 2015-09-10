@@ -3,12 +3,12 @@ import CurrentUserSettings from 'ghost/mixins/current-user-settings';
 import styleBody from 'ghost/mixins/style-body';
 
 var NavigationRoute = AuthenticatedRoute.extend(styleBody, CurrentUserSettings, {
-
-    titleToken: 'Navigation',
+    titleToken: 'Settings - Navigation',
 
     classNames: ['settings-view-navigation'],
 
-    beforeModel: function () {
+    beforeModel: function (transition) {
+        this._super(transition);
         return this.get('session.user')
             .then(this.transitionAuthor());
     },
@@ -17,10 +17,6 @@ var NavigationRoute = AuthenticatedRoute.extend(styleBody, CurrentUserSettings, 
         return this.store.find('setting', {type: 'blog,theme'}).then(function (records) {
             return records.get('firstObject');
         });
-    },
-
-    renderTemplate: function () {
-        this.render('settings/navigation', {into: 'application'});
     },
 
     actions: {

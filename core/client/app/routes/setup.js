@@ -1,16 +1,17 @@
 import Ember from 'ember';
+import {request as ajax} from 'ic-ajax';
 import Configuration from 'simple-auth/configuration';
 import styleBody from 'ghost/mixins/style-body';
-import loadingIndicator from 'ghost/mixins/loading-indicator';
 
-var SetupRoute = Ember.Route.extend(styleBody, loadingIndicator, {
+export default Ember.Route.extend(styleBody, {
     titleToken: 'Setup',
 
     classNames: ['ghost-setup'],
 
+    ghostPaths: Ember.inject.service('ghost-paths'),
+
     // use the beforeModel hook to check to see whether or not setup has been
     // previously completed.  If it has, stop the transition into the setup page.
-
     beforeModel: function () {
         var self = this;
 
@@ -21,7 +22,7 @@ var SetupRoute = Ember.Route.extend(styleBody, loadingIndicator, {
         }
 
         // If user is not logged in, check the state of the setup process via the API
-        return ic.ajax.request(this.get('ghostPaths.url').api('authentication/setup'), {
+        return ajax(this.get('ghostPaths.url').api('authentication/setup'), {
             type: 'GET'
         }).then(function (result) {
             var setup = result.setup[0].status;
@@ -30,7 +31,9 @@ var SetupRoute = Ember.Route.extend(styleBody, loadingIndicator, {
                 return self.transitionTo('signin');
             }
         });
+    },
+    deactivate: function () {
+        this._super();
+        this.controllerFor('setup/two').set('password', '');
     }
 });
-
-export default SetupRoute;
